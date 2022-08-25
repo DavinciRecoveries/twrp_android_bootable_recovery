@@ -643,6 +643,8 @@
 		<string name="format_data_msg">You may need to reboot recovery to be able to use /data again.</string>
 		<string name="format_data_err">Unable to format to remove encryption.</string>
 		<string name="formatting_using">Formatting {1} using {2}...</string>
+		<string name="formatting_warn_erofs">Formatting {1} wouldn't make much sense because it's using erofs therefore it's read only.</string>
+		<string name="formatting_warn_erofs_2">You may flash any image/rom and it will be overwritten. But mkfs.erofs is included as a binary for power users.</string>
 		<string name="unable_to_wipe">Unable to wipe {1}.</string>
 		<string name="cannot_wipe">Partition {1} cannot be wiped.</string>
 		<string name="remove_all">Removing all files under '{1}'</string>

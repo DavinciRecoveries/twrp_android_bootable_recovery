@@ -202,6 +202,7 @@ private:
 	bool Wipe_EXTFS(string File_System);                                      // Create an ext2/ext3/ext4 filesystem
 	bool Wipe_EXT4();                                                         // Formats using ext4, uses make_ext4fs when present
 	bool Wipe_FAT();                                                          // Formats as FAT if mkfs.fat exits otherwise rm -rf wipe
+	bool Wipe_EROFS();                                                        // Displays message when trying to wipe an EROFS partition
 	bool Wipe_EXFAT();                                                        // Formats as EXFAT
 	bool Wipe_MTD();                                                          // Formats as yaffs2 for MTD memory types
 	bool Wipe_RMRF();                                                         // Uses rm -rf to wipe

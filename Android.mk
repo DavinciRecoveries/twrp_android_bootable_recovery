@@ -540,6 +540,10 @@ ifneq ($(TW_NO_EXFAT), true)
         TWRP_REQUIRED_MODULES += exfat-fuse
     endif
 endif
+ifneq ($(TW_NO_EROFS), true)
+    TWRP_REQUIRED_MODULES += fsck.erofs mkfs.erofs
+endif
+
 ifeq ($(BOARD_HAS_NO_REAL_SDCARD),)
     TWRP_REQUIRED_MODULES += sgdisk
 endif

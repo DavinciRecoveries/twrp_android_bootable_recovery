@@ -1745,6 +1745,8 @@ bool TWPartition::Wipe(string New_File_System) {
 			wiped = Wipe_EXT4();
 		else if (New_File_System == "ext2" || New_File_System == "ext3")
 			wiped = Wipe_EXTFS(New_File_System);
+		else if (New_File_System == "erofs")
+			wiped = Wipe_EROFS();
 		else if (New_File_System == "exfat")
 			wiped = Wipe_EXFAT();
 		else if (New_File_System == "ntfs" || Current_File_System == "tntfs")
@@ -1825,6 +1827,8 @@ bool TWPartition::Can_Repair() {
 		return true;
 	else if ((Current_File_System == "ext2" || Current_File_System == "ext3" || Current_File_System == "ext4") && TWFunc::Path_Exists("/system/bin/e2fsck"))
 		return true;
+	else if (Current_File_System == "erofs" && TWFunc::Path_Exists("/system/bin/fsck.erofs"))
+		return true;
 	else if (Current_File_System == "exfat" && TWFunc::Path_Exists("/system/bin/fsck.exfat"))
 		return true;
 	else if (Current_File_System == "f2fs" && TWFunc::Path_Exists("/system/bin/fsck.f2fs"))
@@ -1866,6 +1870,25 @@ bool TWPartition::Repair() {
 		gui_msg(Msg("repairing_using=Repairing {1} using {2}...")(Display_Name)("e2fsck"));
 		Find_Actual_Block_Device();
 		command = "/system/bin/e2fsck -fp " + Actual_Block_Device;
+		LOGINFO("Repair command: %s\n", command.c_str());
+		if (TWFunc::Exec_Cmd(command) == 0) {
+			gui_msg("done=Done.");
+			return true;
+		} else {
+			gui_msg(Msg(msg::kError, "unable_repair=Unable to repair {1}.")(Display_Name));
+			return false;
+		}
+	}
+	if (Current_File_System == "erofs") {
+		if (!TWFunc::Path_Exists("/system/bin/fsck.erofs")) {
+			gui_msg(Msg(msg::kError, "repair_not_exist={1} does not exist! Cannot repair!")("fsck.erofs"));
+			return false;
+		}
+		if (!UnMount(true))
+			return false;
+		gui_msg(Msg("repairing_using=Repairing {1} using {2}...")(Display_Name)("fsck.erofs"));
+		Find_Actual_Block_Device();
+		command = "/system/bin/fsck.erofs " + Actual_Block_Device;
 		LOGINFO("Repair command: %s\n", command.c_str());
 		if (TWFunc::Exec_Cmd(command) == 0) {
 			gui_msg("done=Done.");
@@ -2351,6 +2374,12 @@ bool TWPartition::Wipe_FAT() {
 	else
 		return Wipe_RMRF();
 
+	return false;
+}
+
+bool TWPartition::Wipe_EROFS() {
+	gui_msg(Msg("formatting_warn_erofs=Formatting {1} wouldn't make much sense because it's using erofs therefore it's read only.")(Display_Name));
+	gui_msg(Msg("formatting_warn_erofs_2=You may flash any image/rom and it will be overwritten. But mkfs.erofs is included as a binary for power users."));
 	return false;
 }
 
@@ -3199,6 +3228,8 @@ uint64_t TWPartition::Get_Max_FileSize() {
 		maxFileSize = 4 * constGB; //4 GB
 	else if (Current_File_System == "ntfs" || Current_File_System == "tntfs")
 		maxFileSize = 256 * constTB; //256 TB
+	else if (Current_File_System == "erofs")
+		maxFileSize = 4 * constGB; //4 GB
 	else if (Current_File_System == "exfat")
 		maxFileSize = 16 * constPB; //16 PB
 	else if (Current_File_System == "ext3")
